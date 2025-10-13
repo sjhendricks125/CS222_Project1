@@ -1,5 +1,29 @@
+import json
+import ssl
+import re
+from urllib.request import urlopen
+
+def getWikiTitle():
+    title = input("Enter Wikipedia Article Title:\n")
+    title = title.lower()
+    title = re.sub(r'[^a-z0-9]+', '-', title)
+    title = title.strip('-')
+    return title
+
+def sendRequest(url):
+    try: 
+        context = ssl._create_unverified_context()
+        response = urlopen(url, context=context)
+        wikiData =json.loads(response.read())
+        print(wikiData)
+    except:
+        print("Can't find article")
+
 def main():
-    pass
+    wikiTitle = getWikiTitle()
+    url = f'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=revisions&titles={wikiTitle}&rvprop=timestamp|user&rvlimit=20&redirects'
+    sendRequest(url)
+    print(url)
 main()
 
 
