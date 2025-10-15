@@ -4,6 +4,7 @@ import re
 import sys
 from urllib.request import urlopen, Request
 
+# To run just put: python project1_demo.py "<Wikipedia article name>"
 def getWikiTitle():
     try:
         title = sys.argv[1]
