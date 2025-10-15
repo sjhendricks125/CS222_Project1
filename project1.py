@@ -28,7 +28,7 @@ main()
 
 
 # NOTES:
-# Provide name of Wikipedia artilcle on command-line when ran
+# get name of Wikipedia article on command-line by input when ran
 # Responds by providing up to 30 most recent changes to that article, in reverse chronological order, time of change, one space character, then user of person making changes, followed by newline character.
 # After printing changes, exit with error code 0
 # If fewer than 30 changes, show all changes
