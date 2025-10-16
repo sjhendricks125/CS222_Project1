@@ -7,11 +7,14 @@ from urllib.request import urlopen, Request
 # To run just put: python project1_demo.py "<Wikipedia article name>"
 def getWikiTitle():
     try:
-        title = sys.argv[1]
+        title = input("Enter Wikipedia Article Title:\n")
+        title = re.sub(r'[^a-zA-Z0-9,]+', '_', title)
+        title = title.strip('_')
+        print("title =  " + title)
     except IndexError:
         print("Please provide a Wikipedia article name on the command line")
         sys.exit(1)
-    title = title.replace(' ', '_')
+    #title = title.replace(' ', '_')
     return title
 
 def sendRequest(url):
