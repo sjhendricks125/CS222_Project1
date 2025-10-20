@@ -1,38 +1,66 @@
 import json
 import ssl
 import re
-from urllib.request import urlopen
+import sys
+from urllib.request import urlopen, Request
 
+# getWikiTitle
+#Prompts user for title
+#Cleans title for url 
+#Strips leading/trailing underscores
+#Returns clean title string 
 def getWikiTitle():
-    title = input("Enter Wikipedia Article Title:\n")
-    title = title.lower()
-    title = re.sub(r'[^a-z0-9]+', '-', title)
-    title = title.strip('-')
+    try:
+        title = input("Enter Wikipedia Article Title:\n")
+        title = re.sub(r'[^a-zA-Z0-9,]+', '_', title) #replace characters with '_'
+        title = title.strip('_') #remove leading/trailing underscores
+    except IndexError:
+        print("Title input error")
+        sys.exit(1)
     return title
 
+# sendRequest 
+#Sends request to Wikipedia API
+#handles redirects and missing pages
+#prints the timestamp and user of last 30 revisions
+#Exits with specific codes for different errors
 def sendRequest(url):
     try: 
+        request = Request(url, headers={'User-Agent': 'CS222Project/1.0'})
+        #sends request and parse JSON response
         context = ssl._create_unverified_context()
-        response = urlopen(url, context=context)
-        wikiData =json.loads(response.read())
-        print(wikiData)
-    except:
-        print("Can't find article")
+        response = urlopen(request, context=context)
+        wikiData = json.loads(response.read())
+
+        #Handle redirects
+
+        if 'redirects' in wikiData.get('query', {}):
+            redirect_name = wikiData['query']['redirects'][0]['to']
+            print(f"Redirected to {redirect_name}")
+        #extracts page data
+        pages = wikiData['query']['pages']
+        page_id = list(pages.keys())[0]
+        page = pages[page_id]
+
+        #Handle missing pages
+        
+        if 'missing' in page:
+            print("No Wikipedia page found for the provided name")
+            sys.exit(2)
+        revisions = page['revisions']
+        for revision in revisions:
+            timestamp = revision['timestamp']
+            user = revision['user']
+            print(f"{timestamp} {user}")
+        sys.exit(0)
+    except Exception as e:
+        print("Network error occurred")
+        sys.exit(3)
 
 def main():
     wikiTitle = getWikiTitle()
-    url = f'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=revisions&titles={wikiTitle}&rvprop=timestamp|user&rvlimit=20&redirects'
+    url = f'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=revisions&titles={wikiTitle}&rvprop=timestamp|user&rvlimit=30&redirects'
     sendRequest(url)
-    print(url)
+    
 main()
 
-
-# NOTES:
-# Provide name of Wikipedia artilcle on command-line when ran
-# Responds by providing up to 30 most recent changes to that article, in reverse chronological order, time of change, one space character, then user of person making changes, followed by newline character.
-# After printing changes, exit with error code 0
-# If fewer than 30 changes, show all changes
-# If page redirects as part of search, then first line of output from app should have the form "Redirectded to <article name>"
-# If no name on command-line, print message and exit with error code 1
-# If no Wikipedia page for name, print message and exit with error code 2
-# If network error, print message and exit with error code 3
