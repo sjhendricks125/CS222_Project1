@@ -5,12 +5,7 @@ import re
 from urllib.request import urlopen, Request
 
 def get_wikipedia_revisions(title):
-    """
-    Gets Wikipedia revisions for a given title.
-    Returns (success, message, revisions)
-    """
     try:
-        # Clean title for URL
         clean_title = re.sub(r'[^a-zA-Z0-9,]+', '_', title)
         clean_title = clean_title.strip('_')
         
@@ -41,7 +36,7 @@ def get_wikipedia_revisions(title):
 
 def query_article():
     title = title_entry.get()
-    revisions_text.delete(1.0, tk.END)  # Clear previous results
+    revisions_text.delete(1.0, tk.END) 
 
     if not title:
         revisions_text.insert(tk.END, "Please enter the article title")
@@ -55,8 +50,6 @@ def query_article():
     if not success:
         revisions_text.insert(tk.END, f"Error: {message}")
         return
-
-    # Show redirect message if any
     if message:
         revisions_text.insert(tk.END, message)
     
