@@ -29,6 +29,10 @@ def get_wikipedia_revisions(title):
             return False, "No Wikipedia page found for the provided name", []
         
         revisions = page['revisions']
+        for revision in revisions:
+            timestamp = revision['timestamp']
+            user = revision['user']
+            print(f"{timestamp} {user}")
         return True, redirect_message, revisions
         
     except Exception as e:
@@ -44,7 +48,18 @@ def query_article():
     
     revisions_text.insert(tk.END, "Gathering the revisions now-\n")
     window.update()
+    
+    from project1 import sendRequest
+
+    clean_title = re.sub(r'[^a-zA-Z0-9,]+', '_', title).strip('_')
+    url = f'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=revisions&titles={clean_title}&rvprop=timestamp|user&rvlimit=30&redirects'
+
+    try:
+        sendRequest(url)
+    except SystemExit:
+        pass # Prevent closing the GUI
     success, message, revisions = get_wikipedia_revisions(title)
+
     revisions_text.delete(1.0, tk.END)
     
     if not success:

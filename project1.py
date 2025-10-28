@@ -3,6 +3,9 @@ import ssl
 import re
 import sys
 from urllib.request import urlopen, Request
+import threading
+import project1Gui
+
 
 # getWikiTitle
 #Prompts user for title
@@ -58,9 +61,24 @@ def sendRequest(url):
         sys.exit(3)
 
 def main():
+    try:
+        gui_thread = threading.Thread(target=project1Gui.run_gui)
+        gui_thread.start()
+    except Exception as e:
+        print("Error starting GUI:", e)
+        sys.exit(4)
+    # Prompt for the Wikipedia title
     wikiTitle = getWikiTitle()
+    
     url = f'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=revisions&titles={wikiTitle}&rvprop=timestamp|user&rvlimit=30&redirects'
     sendRequest(url)
+
+
+if __name__ == "__main__":
+    main()
+#     wikiTitle = getWikiTitle()
+#     url = f'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=revisions&titles={wikiTitle}&rvprop=timestamp|user&rvlimit=30&redirects'
+#     sendRequest(url)
     
-main()
+# main()
 
